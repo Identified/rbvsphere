@@ -40,6 +40,31 @@ module VSphere
     end
     
 
+    def rename_vm vm, new_name
+      vm.vm.Rename_Task(newName: new_name).wait_for_completion
+    end
+
+    def swap_vms vm1, vm2
+      cs1 = build_customization_spec name: vm2.name, ip: vm2.ip_address
+      cs2 = build_customization_spec name: vm1.name, ip: vm1.ip_address
+    
+      rename_vm vm1, "#{vm1.name}-tmp"
+      rename_vm vm2, vm1.name
+      rename_vm vm1, vm2.name
+
+      vm1.stop 
+      vm2.stop
+  
+      vm1.vm.CustomizeVM_Task(spec: cs1).wait_for_completion
+      vm2.vm.CustomizeVM_Task(spec: cs2).wait_for_completion
+    
+      vm1.start 
+      vm2.start
+  
+      vm1.full_restart
+      vm2.full_restart
+  
+    end
     
     private
     
@@ -82,16 +107,17 @@ module VSphere
     
     
     def build_customization_spec opts
+      hostname     = opts[:name]
       ip           = opts[:ip]           || "172.31.30.254"
       gateway      = opts[:gateway]      || "172.31.30.1"
       subnet_mask  = opts[:subnet_mask]  || "255.255.255.0"
       domain       = opts[:domain]       || "identified.com"
-      dns_servers  = opts[:dns_servers]  || ["172.31.10.37"]
+      dns_servers  = opts[:dns_servers]  || ["172.31.10.37", ""]
       dns_suffixes = opts[:dns_suffixes] || ["identified.com"]
       
       
       identity = RbVmomi::VIM.CustomizationLinuxPrep({
-        hostName:   RbVmomi::VIM.CustomizationFixedName(name: opts[:name]),
+        hostName:   RbVmomi::VIM.CustomizationFixedName(name: hostname),
         domain:     domain,
         hwClockUTC: true
       }) 
@@ -116,6 +142,7 @@ module VSphere
         globalIPSettings: global_ip_settings,
         options:          RbVmomi::VIM.CustomizationLinuxOptions
       })
+
     end
     
     def find_resource_pool opts

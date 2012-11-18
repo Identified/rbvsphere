@@ -4,12 +4,16 @@ module VSphere
       
       def start
         vm.PowerOnVM_Task.wait_for_completion
+        while true
+          reload
+          break if vm.summary.guest.toolsStatus == "toolsOk"
+        end
         reload
       end
       
       def stop force = false
         vm.ShutdownGuest
-        sleep(2) and reload while state != :off
+        sleep(2) and reload rescue nil while state != :off
       end
       
       def halt
@@ -24,6 +28,11 @@ module VSphere
       def reset
         vm.ResetVM_Task.wait_for_completion
         reload
+      end
+      
+      def full_restart
+        stop
+        start
       end
       
       def suspend
