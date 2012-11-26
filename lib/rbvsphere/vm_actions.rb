@@ -101,7 +101,7 @@ module VSphere
     
     
     def find_folder_for_vm opts
-      path = opts[:path] || "#{opts[:stage].capitalize}/#{opts[:vip].capitalize}"
+      path = opts[:path] || "#{opts[:stage].capitalize}/#{opts[:subnet].capitalize}"
       folder = dc.vmFolder.traverse(path)
     end
     
