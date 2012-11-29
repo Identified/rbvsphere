@@ -4,6 +4,8 @@ require 'rbvsphere/vm'
 require 'rbvsphere/vm_filters'
 require 'rbvsphere/vm_finders'
 require 'rbvsphere/vm_actions'
+require 'rbvsphere/folders'
+require 'rbvsphere/helpers'
 require 'benchmark'
 
 module VSphere
@@ -12,7 +14,8 @@ module VSphere
   extend VMFilters
   extend VMFinders
   extend VMActions
-    
+  extend Folders
+
   def self.connect opts = {}
     if File.exists? VSPHERE_CONFIG
       opts = YAML.load_file(VSPHERE_CONFIG).merge(opts)

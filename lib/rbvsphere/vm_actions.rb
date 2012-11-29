@@ -14,29 +14,44 @@ module VSphere
       VM.new(vm).tap { |new_vm| @vms << new_vm }
     end
       
-    def bulk_clone_from_template num, prefix, start_ip, opts = {}
-      tasks = []
-      vms   = []
-      
-      # Start cloning vms
-      1.upto num do |i|
-        name = "#{prefix}-%0#{[num.to_s.length, 2].max}d" % i
-        ip = ip_add(start_ip, i-1)
-        puts "Launching: #{name} - #{ip}"
-        
-        tasks << clone_from_template_task( opts.merge(ip: ip, name: name) )
+    def bulk_clone_from_template vm_info=[]
+      raise "parameter must be a array of hashes" unless vm_info.is_a? Array
+      vm_info.each do |info|
+        ::VSphere::Helpers.validate_parameters_presence [:name, :ip, :gateway, :template], info
       end
-      
-      # Wait for vms to finish cloning
-      tasks.map { |t|
-        vm = t.wait_for_completion
-        VM.new(vm).tap { |new_vm| 
-          @vms << new_vm 
-          vms << new_vm
-        }
-      }
-      
-      vms
+
+      # starting VMs
+      vm_info.map! do |info|
+        info[:path] = info[:folder]
+        info[:task] = clone_from_template_task info
+        info
+      end
+
+      # waiting for vms to start
+      vm_info.map! do |info|
+        info[:vm] = VM.new info[:task].wait_for_completion
+        @vms << info[:vm]
+
+        # applying annotations
+        info[:annotations].each do |k,v|
+          info[:vm].annotations.add k, v
+        end
+        # Stopping VMs
+        info[:restart_task] = Thread.new do
+          info[:vm].start
+          sleep 60
+          info[:vm].stop
+          sleep 60
+          info[:vm].start
+        end
+        info
+      end
+
+      vm_info.each do |info|
+        info[:restart_task].join
+      end
+
+      vm_info.map{|info| info[:vm]}
     end
     
 
