@@ -34,7 +34,12 @@ module VSphere
       def [] key
         annotations[key]
       end
-      
+
+      def add key, val
+        vm.vm.setCustomValue key: key, value:val
+        annotations[key] = val
+      end
+
       def to_s
         annotations.to_s
       end
