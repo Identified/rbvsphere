@@ -34,12 +34,21 @@ module VSphere
   
   def self.vms
     @vms ||= begin
-      VM.list @vim.serviceContent.viewManager.CreateContainerView({
-        container: @vim.rootFolder,
-        type:  ['VirtualMachine'],
-        recursive: true
-      }).view
+      VM.list find_all('VirtualMachine')
     end
+  end
+  
+  def self.find_network name
+    find_all('Network').select{|n| n.name == name}.first || raise("Network not found: #{name}")
+  end
+  
+  def self.find_all types
+    types = [types].flatten
+    @vim.serviceContent.viewManager.CreateContainerView({
+      container: @vim.rootFolder,
+      type:  types,
+      recursive: true
+    }).view
   end
   
   def self.reload

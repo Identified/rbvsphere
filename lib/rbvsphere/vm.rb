@@ -1,5 +1,7 @@
 require 'rbvsphere/vm/attributes'
 require 'rbvsphere/vm/actions'
+require 'rbvsphere/vm/configure'
+
 
 module VSphere
   class VM
@@ -7,6 +9,7 @@ module VSphere
     
     include Attributes
     include Actions
+    include Configure
     
     POWER_STATES = {
       'poweredOff' => :off,
