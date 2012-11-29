@@ -112,7 +112,7 @@ module VSphere
       gateway      = opts[:gateway]      || "172.31.30.1"
       subnet_mask  = opts[:subnet_mask]  || "255.255.255.0"
       domain       = opts[:domain]       || "identified.com"
-      dns_servers  = opts[:dns_servers]  || ["172.31.10.37", ""]
+      dns_servers  = opts[:dns_servers]  || ["172.31.10.37"]
       dns_suffixes = opts[:dns_suffixes] || ["identified.com"]
       
       
@@ -130,7 +130,9 @@ module VSphere
       ip_settings = RbVmomi::VIM.CustomizationIPSettings({
         ip:         RbVmomi::VIM.CustomizationFixedIp(ipAddress: ip),
         gateway:    [gateway],
-        subnetMask: subnet_mask
+        subnetMask: subnet_mask,
+        dnsDomain:  "identified.com",
+        dnsServerList: dns_servers
       })
       
       adapter_mapping = RbVmomi::VIM.CustomizationAdapterMapping adapter: ip_settings
