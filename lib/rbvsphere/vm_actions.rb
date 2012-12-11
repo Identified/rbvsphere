@@ -38,6 +38,7 @@ module VSphere
         end
         # Stopping VMs
         info[:restart_task] = Thread.new do
+          info[:vm].update_config! info
           info[:vm].start
           sleep 60
           info[:vm].stop

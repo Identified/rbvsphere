@@ -14,7 +14,7 @@ module VSphere::VM::Configure
     
     update_nics   change_spec, opts if opts[:nics]
     update_cpus   change_spec, opts if opts[:cpus]
-    update_memory change_spec, opts if opts[:memory]
+    update_memory change_spec, opts if opts[:memoryMB]
     
     vm.ReconfigVM_Task spec: change_spec
   end
@@ -52,13 +52,11 @@ module VSphere::VM::Configure
   end
   
   def update_cpus config_spec, opts
-    #TODO: allow dynamicly changing of cpus
-    raise "update_cpus - Unimplemented"
+    config_spec.numCPUs = opts[:cpus]
   end
   
   def update_memory config_spec, opts
-    #TODO: allow dynamicly changing of memory
-    raise "update_memory - Unimplemented"
+    config_spec.memoryMB = opts[:memoryMB]
   end
 end
 
