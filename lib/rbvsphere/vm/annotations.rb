@@ -4,10 +4,10 @@ module VSphere
       
       attr_reader :vm, :annotations
         
-      def initialize vm
+      def initialize vm, opts={}
         @vm = vm
-        
-        vals = vm.vm.customValue.inject({}) { |vs, cf| 
+        cv =  opts["customValue"] || vm.vm.customValue
+        vals = cv.inject({}) { |vs, cf|
           values =  cf.value.split ?,
           values.map(&:strip!)
           if values.length > 1
@@ -18,8 +18,8 @@ module VSphere
           vs 
         }
         
-        
-        @annotations = vm.vm.availableField.inject({}) { |annos, cfd| 
+        af = opts["availableField"] || vm.vm.availableField
+        @annotations = af.inject({}) { |annos, cfd|
           annos[cfd.name.downcase.to_sym] = vals[cfd.key]
           annos 
         }

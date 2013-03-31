@@ -18,7 +18,8 @@ module VSphere
     }
     
     def self.list vms
-      vms = VSphere.vim.serviceContent.propertyCollector.collectMultiple(vms, "name", "summary", "config.annotation", "config.instanceUuid", "customValue", "availableField")
+      vms = VSphere.vim.serviceContent.propertyCollector.collectMultiple(vms, "name", "summary", "config", "customValue", "availableField")
+
       vms.map{ |vm| 
         new *vm 
       } 

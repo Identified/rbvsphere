@@ -11,18 +11,20 @@ module VSphere
       
       
       def setup_attributes opts = {}
+
         @name       ||= opts["name"]                        || vm.name
         @summary    ||= opts["summary"]                     || vm.summary
-        @notes      ||= opts["config.annotation"]           || vm.config.annotation
-        @uuid       ||= opts["config.instanceUuid"]         || vm.config.instanceUuid
-        @hostname   ||= summary.guest.hostName      
+        config = opts["config"] || vm.config
+        @notes      ||= config.annotation
+        @uuid       ||= config.instanceUuid
+        @hostname   ||= summary.guest.hostName
         @ip_address ||= summary.guest.ipAddress     
-        @template   ||= summary.config.template     
+        @template   ||= summary.config.template
         @os         ||= summary.guest.guestFullName 
 
         
         @state       ||= POWER_STATES[ summary.runtime.powerState ]
-        @annotations ||= Annotations.new self
+        @annotations ||= Annotations.new self, opts
         
       end
       
