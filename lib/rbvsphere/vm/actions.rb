@@ -12,7 +12,7 @@ module VSphere
       end
       
       def stop force = false
-        sleep(5)
+        sleep(15)
         vm.ShutdownGuest
         sleep(2) and reload rescue nil while state != :off
       end
