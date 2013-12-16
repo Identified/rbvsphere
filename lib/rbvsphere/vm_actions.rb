@@ -54,7 +54,32 @@ module VSphere
 
       vm_info.map{|info| info[:vm]}
     end
-    
+
+    def bulk_destroy vm_info=[]
+      raise "parameter must be a array of hashes" unless vm_info.is_a? Array
+      vm_info.each do |info|
+        ::VSphere::Helpers.validate_parameters_presence [:name, :ip, :gateway, :template], info
+      end
+
+      vm_info.map! do |info|
+        vm = VM.new (VSphere.find_vm info[:name]) rescue nil
+        if vm
+          info[:vm] = vm
+          info[:destroy_task] = Thread.new do
+            info[:vm].stop unless info[:vm].state == :off
+            info[:vm].destroy
+          end
+        end
+        info
+      end
+
+      vm_info.each do |info|
+        info[:destroy_task].join if info[:destroy_task]
+      end
+
+      vm_info.map{|info| info[:vm]}
+
+    end
 
     def rename_vm vm, new_name
       vm.vm.Rename_Task(newName: new_name).wait_for_completion

@@ -44,7 +44,11 @@ module VSphere
   def self.find_network name
     find_all('Network').select{|n| n.name == name}.first || raise("Network not found: #{name}")
   end
-  
+
+  def self.find_vm name
+    find_all('VirtualMachine').select{|n| n.name == name}.first || raise("VM not found: #{name}")
+  end
+
   def self.find_all types
     types = [types].flatten
     @vim.serviceContent.viewManager.CreateContainerView({
