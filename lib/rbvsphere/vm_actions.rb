@@ -172,7 +172,7 @@ module VSphere
         ip:         RbVmomi::VIM.CustomizationFixedIp(ipAddress: ip),
         gateway:    [gateway],
         subnetMask: subnet_mask,
-        dnsDomain:  "identified.com",
+        dnsDomain:  domain,
         dnsServerList: dns_servers
       })
       
