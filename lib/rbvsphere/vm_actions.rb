@@ -149,12 +149,12 @@ module VSphere
     
     def build_customization_spec opts
       hostname     = opts[:name]
-      ip           = opts[:ip]           || "172.31.30.254"
-      gateway      = opts[:gateway]      || "172.31.30.1"
-      subnet_mask  = opts[:subnet_mask]  || "255.255.255.0"
-      domain       = opts[:domain]       || "identified.com"
-      dns_servers  = opts[:dns_servers]  || ["172.31.10.37"]
-      dns_suffixes = opts[:dns_suffixes] || ["identified.com"]
+      ip           = opts[:ip]
+      gateway      = opts[:gateway]
+      subnet_mask  = opts[:subnet_mask]
+      domain       = opts[:domain]
+      dns_servers  = opts[:dns_servers]
+      dns_suffixes = opts[:dns_suffixes]
       
       
       identity = RbVmomi::VIM.CustomizationLinuxPrep({
