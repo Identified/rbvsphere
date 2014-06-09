@@ -46,12 +46,14 @@ module VSphere
         VSphere.vms.delete self
       end
       
-      def snapshot
-        vm.CreateSnapshot_Task.wait_for_completion
+      def snapshot(opts = {})
+        opts = opts.merge{name: Time.now.utc.strftime('%Y%m%d%H%M'), quiesce: true, memory:false}
+        vm.CreateSnapshot_Task(opts).wait_for_completion
       end
 
       def revert_snapshot
         vm.RevertToCurrentSnapshot_Task.wait_for_completion
+        vm.start.wait_for_completion
       end
     end
   end
