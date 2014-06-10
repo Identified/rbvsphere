@@ -47,7 +47,7 @@ module VSphere
       end
       
       def snapshot(opts = {})
-        opts = opts.merge({name: Time.now.utc.strftime('%Y%m%d%H%M'), quiesce: true, memory:false})
+        opts = opts.merge({name: Time.now.utc.strftime('Snap %Y-%m-%d %H:%M'), quiesce: true, memory:false})
         vm.CreateSnapshot_Task(opts).wait_for_completion
       end
 

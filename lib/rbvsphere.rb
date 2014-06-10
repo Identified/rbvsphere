@@ -1,11 +1,11 @@
 require 'yaml'
 require 'rbvmomi'
-require 'rbvsphere/vm'
-require 'rbvsphere/vm_filters'
-require 'rbvsphere/vm_finders'
-require 'rbvsphere/vm_actions'
-require 'rbvsphere/folders'
-require 'rbvsphere/helpers'
+require_relative 'rbvsphere/vm'
+require_relative 'rbvsphere/vm_filters'
+require_relative 'rbvsphere/vm_finders'
+require_relative 'rbvsphere/vm_actions'
+require_relative 'rbvsphere/folders'
+require_relative 'rbvsphere/helpers'
 require 'benchmark'
 
 module VSphere

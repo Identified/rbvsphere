@@ -1,6 +1,6 @@
-require 'rbvsphere/vm/attributes'
-require 'rbvsphere/vm/actions'
-require 'rbvsphere/vm/configure'
+require_relative 'vm/attributes'
+require_relative 'vm/actions'
+require_relative 'vm/configure'
 
 
 module VSphere
@@ -39,4 +39,4 @@ module VSphere
   end
 end
 
-require 'rbvsphere/vm/annotations'
+require_relative 'vm/annotations'
