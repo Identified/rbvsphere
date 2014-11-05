@@ -2,18 +2,18 @@ require 'ipaddr'
 
 module VSphere
   module VMActions
-    
+
     def launch_from_template opts = {}
       vm = clone_from_template opts
       vm.start
       vm
     end
-    
+
     def clone_from_template opts = {}
       vm = clone_from_template_task(opts).wait_for_completion
       VM.new(vm).tap { |new_vm| @vms << new_vm }
     end
-      
+
     def bulk_clone_from_template vm_info=[]
       raise "parameter must be a array of hashes" unless vm_info.is_a? Array
       vm_info.each do |info|
@@ -26,6 +26,7 @@ module VSphere
         info[:task] = clone_from_template_task info
         info
       end
+
 
       # waiting for vms to start
       vm_info.map! do |info|
@@ -87,35 +88,35 @@ module VSphere
     def swap_vms vm1, vm2
       cs1 = build_customization_spec name: vm2.name, ip: vm2.ip_address
       cs2 = build_customization_spec name: vm1.name, ip: vm1.ip_address
-    
+
       rename_vm vm1, "#{vm1.name}-tmp"
       rename_vm vm2, vm1.name
       rename_vm vm1, vm2.name
 
-      vm1.stop 
+      vm1.stop
       vm2.stop
-  
+
       vm1.vm.CustomizeVM_Task(spec: cs1).wait_for_completion
       vm2.vm.CustomizeVM_Task(spec: cs2).wait_for_completion
-    
-      vm1.start 
+
+      vm1.start
       vm2.start
-  
+
       vm1.full_restart
       vm2.full_restart
-  
+
     end
-    
+
     private
-    
-    
+
+
 
     def ip_add ip_string, n
       ip = IPAddr.new ip_string
       IPAddr.new(ip.to_i + n, ip.family).to_s
     end
-    
-    def clone_from_template_task opts = {}      
+
+    def clone_from_template_task opts = {}
       vm = opts[:template].is_a?(String) ? find_template_by_name(opts[:template]).vm : opts[:template].vm
 
       folder          = find_folder_for_vm(opts) || vm.parent
@@ -126,26 +127,26 @@ module VSphere
       })
 
       clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec({
-        location:      relocation_spec, 
+        location:      relocation_spec,
         customization: customize_spec,
         powerOn:       false,
         template:      false
       })
-            
+
       vm.CloneVM_Task({
-        folder: folder, 
+        folder: folder,
         spec:   clone_spec,
         name:   opts[:name]
       })
     end
-    
-    
+
+
     def find_folder_for_vm opts
       path = opts[:path] || "#{opts[:stage].capitalize}/#{opts[:subnet].capitalize}"
       folder = dc.vmFolder.traverse(path)
     end
-    
-    
+
+
     def build_customization_spec opts
       hostname     = opts[:name]
       ip           = opts[:ip]
@@ -154,19 +155,19 @@ module VSphere
       domain       = opts[:domain]
       dns_servers  = opts[:dns_servers]
       dns_suffixes = opts[:dns_suffixes]
-      
-      
+
+
       identity = RbVmomi::VIM.CustomizationLinuxPrep({
         hostName:   RbVmomi::VIM.CustomizationFixedName(name: hostname),
         domain:     domain,
         hwClockUTC: true
-      }) 
-      
+      })
+
       global_ip_settings = RbVmomi::VIM.CustomizationGlobalIPSettings({
         dnsServerList: dns_servers,
         dnsSuffixList: dns_suffixes
       })
-      
+
       ip_settings = RbVmomi::VIM.CustomizationIPSettings({
         ip:         RbVmomi::VIM.CustomizationFixedIp(ipAddress: ip),
         gateway:    [gateway],
@@ -174,10 +175,10 @@ module VSphere
         dnsDomain:  domain,
         dnsServerList: dns_servers
       })
-      
+
       adapter_mapping = RbVmomi::VIM.CustomizationAdapterMapping adapter: ip_settings
-      
-      
+
+
       RbVmomi::VIM.CustomizationSpec({
         identity:         identity,
         nicSettingMap:    [adapter_mapping],
@@ -186,7 +187,7 @@ module VSphere
       })
 
     end
-    
+
     def find_resource_pool opts
       cluster.resourcePool.find(opts[:resource_pool] || opts[:stage] || 'production')
     end
