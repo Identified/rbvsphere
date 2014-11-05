@@ -36,13 +36,12 @@ module VSphere
         info[:annotations].each do |k,v|
           info[:vm].annotations.add k, v
         end
+
         # Stopping VMs
         info[:restart_task] = Thread.new do
           info[:vm].update_config! info
-          info[:vm].start
-          sleep 60
-          info[:vm].stop
-          sleep 60
+          info[:vm].extend_disk!(info[:disk_size_in_gb]) if info[:disk_size_in_gb]
+
           info[:vm].start
         end
         info

@@ -22,8 +22,18 @@ module VSphere::VM::Configure
   def update_config! opts
     update_config(opts).wait_for_completion
   end
-  
-  
+
+  def extend_disk!(size_in_gb)
+    disk_size_in_kb = size_in_gb * 1024 * 1024
+
+    vm.datastore.first._connection.serviceContent.virtualDiskManager.ExtendVirtualDisk_Task(
+      name:          disk_file_url,
+      newCapacityKb: disk_size_in_kb,
+      eagerZero:     false
+    ).wait_for_completion
+  end
+
+
   private # -------------------------------------------------------------------
   
   def update_nics config_spec, opts
@@ -57,6 +67,14 @@ module VSphere::VM::Configure
   
   def update_memory config_spec, opts
     config_spec.memoryMB = opts[:memoryMB]
+  end
+
+  def disk_file_url
+    disk_file_path = vm.disks.first.backing.fileName.split
+    datastore = disk_file_path.first.gsub(/[\[\]]/, '')
+    disk_file = disk_file_path.last
+    config = VSphere.config
+    "https://#{config[:host]}/folder/#{disk_file}?dcPath=#{config[:datacenter]}&dsName=#{datastore}"
   end
 end
 
